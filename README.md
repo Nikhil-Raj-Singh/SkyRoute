@@ -54,53 +54,53 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 1. Clone the repository:
 
-&nbsp;  ```bash
+  ```bash
 
-&nbsp;  git clone https://github.com/Nikhil-Raj-Singh/skyroute.git
+  git clone https://github.com/Nikhil-Raj-Singh/skyroute.git
 
-&nbsp;  cd skyroute
+  cd skyroute
 
-&nbsp;  ```
+  ```
 
 
 
 2. Create a virtual environment and activate it:
 
-&nbsp;  ```bash
+  ```bash
 
-&nbsp;  python -m venv venv
+  python -m venv venv
 
-&nbsp;  venvScriptsactivate  # Windows
+  venvScriptsactivate  # Windows
 
-&nbsp;  source venv/bin/activate  # macOS/Linux
+  source venv/bin/activate  # macOS/Linux
 
-&nbsp;  ```
+  ```
 
 
 
 3. Install dependencies:
 
-&nbsp;  ```bash
+  ```bash
 
-&nbsp;  pip install -r requirements.txt
+  pip install -r requirements.txt
 
-&nbsp;  ```
+  ```
 
 
 
 4. Set up API keys:
 
-&nbsp;  - Create a `.env` file in the project root
+  - Create a `.env` file in the project root
 
-&nbsp;  - Add your API keys:
+  - Add your API keys:
 
-&nbsp;    ```
+    ```
 
-&nbsp;    GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+    GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 
-&nbsp;    OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
+    OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
 
-&nbsp;    ```
+    ```
 
 
 
@@ -110,21 +110,21 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 1. Start the application:
 
-&nbsp;  ```bash
+  ```bash
 
-&nbsp;  python app.py
+  python app.py
 
-&nbsp;  ```
+  ```
 
 
 
 2. Open your browser and navigate to:
 
-&nbsp;  ```
+  ```
 
-&nbsp;  http://localhost:5000
+  http://localhost:5000
 
-&nbsp;  ```
+  ```
 
 
 
@@ -184,13 +184,13 @@ skyroute/
 
 └── modules/                # Core functionality modules
 
-&nbsp;   ├── __init__.py
+   ├── __init__.py
 
-&nbsp;   ├── flight_optimizer.py # Route optimization logic
+   ├── flight_optimizer.py # Route optimization logic
 
-&nbsp;   ├── weather_service.py  # Weather data integration
+   ├── weather_service.py  # Weather data integration
 
-&nbsp;   └── map_service.py      # Google Maps integration
+   └── map_service.py      # Google Maps integration
 
 ```
 
@@ -208,11 +208,11 @@ skyroute/
 
 3. Enable the following APIs:
 
-&nbsp;  - Maps JavaScript API
+  - Maps JavaScript API
 
-&nbsp;  - Directions API
+  - Directions API
 
-&nbsp;  - Geocoding API
+  - Geocoding API
 
 4. Create credentials to get your API key
 
