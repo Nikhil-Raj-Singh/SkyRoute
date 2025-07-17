@@ -1,14 +1,14 @@
 
 
-\# SkyRoute: Intelligent Flight Route Optimizer
+# SkyRoute: Intelligent Flight Route Optimizer
 
 
 
-!\[SkyRoute Banner](https://via.placeholder.com/1200x300?text=SkyRoute+-+Intelligent+Flight+Route+Optimizer)
+![SkyRoute Banner](https://via.placeholder.com/1200x300?text=SkyRoute+-+Intelligent+Flight+Route+Optimizer)
 
 
 
-\## Overview
+## Overview
 
 
 
@@ -16,43 +16,43 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 
 
-\## Features
+## Features
 
 
 
-\- \*\*Intelligent Route Optimization\*\*: Computes the shortest, most cost-effective flight paths
+- **Intelligent Route Optimization**: Computes the shortest, most cost-effective flight paths
 
-\- \*\*Weather Integration\*\*: Analyzes real-time weather data to avoid adverse conditions
+- **Weather Integration**: Analyzes real-time weather data to avoid adverse conditions
 
-\- \*\*Multiple Route Options\*\*: Generates and compares alternative routes
+- **Multiple Route Options**: Generates and compares alternative routes
 
-\- \*\*Interactive Map Visualization\*\*: Displays routes with detailed waypoints and weather info
+- **Interactive Map Visualization**: Displays routes with detailed waypoints and weather info
 
-\- \*\*Detailed Analytics\*\*: Provides metrics on distance, estimated duration, fuel usage, and weather conditions
-
-
-
-\## Technologies Used
+- **Detailed Analytics**: Provides metrics on distance, estimated duration, fuel usage, and weather conditions
 
 
 
-\- \*\*Backend\*\*: Python, Flask
-
-\- \*\*Frontend\*\*: HTML, CSS, JavaScript, Bootstrap
-
-\- \*\*APIs\*\*: Google Maps API, OpenWeatherMap API
-
-\- \*\*Data Processing\*\*: NumPy, Geopy
-
-\- \*\*Visualization\*\*: Google Maps JavaScript API
+## Technologies Used
 
 
 
-\## Installation
+- **Backend**: Python, Flask
+
+- **Frontend**: HTML, CSS, JavaScript, Bootstrap
+
+- **APIs**: Google Maps API, OpenWeatherMap API
+
+- **Data Processing**: NumPy, Geopy
+
+- **Visualization**: Google Maps JavaScript API
 
 
 
-1\. Clone the repository:
+## Installation
+
+
+
+1. Clone the repository:
 
 &nbsp;  ```bash
 
@@ -64,13 +64,13 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 
 
-2\. Create a virtual environment and activate it:
+2. Create a virtual environment and activate it:
 
 &nbsp;  ```bash
 
 &nbsp;  python -m venv venv
 
-&nbsp;  venv\\Scripts\\activate  # Windows
+&nbsp;  venvScriptsactivate  # Windows
 
 &nbsp;  source venv/bin/activate  # macOS/Linux
 
@@ -78,7 +78,7 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 
 
-3\. Install dependencies:
+3. Install dependencies:
 
 &nbsp;  ```bash
 
@@ -88,7 +88,7 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 
 
-4\. Set up API keys:
+4. Set up API keys:
 
 &nbsp;  - Create a `.env` file in the project root
 
@@ -96,19 +96,19 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 &nbsp;    ```
 
-&nbsp;    GOOGLE\_MAPS\_API\_KEY=your\_google\_maps\_api\_key
+&nbsp;    GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 
-&nbsp;    OPENWEATHERMAP\_API\_KEY=your\_openweathermap\_api\_key
+&nbsp;    OPENWEATHERMAP_API_KEY=your_openweathermap_api_key
 
 &nbsp;    ```
 
 
 
-\## Usage
+## Usage
 
 
 
-1\. Start the application:
+1. Start the application:
 
 &nbsp;  ```bash
 
@@ -118,7 +118,7 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 
 
-2\. Open your browser and navigate to:
+2. Open your browser and navigate to:
 
 &nbsp;  ```
 
@@ -128,19 +128,19 @@ SkyRoute is an advanced platform designed to compute the most optimal flight pat
 
 
 
-3\. Enter origin and destination locations (can be city names, airport codes, or coordinates)
+3. Enter origin and destination locations (can be city names, airport codes, or coordinates)
 
 
 
-4\. Click "Optimize Route" to calculate and display the optimal flight paths
+4. Click "Optimize Route" to calculate and display the optimal flight paths
 
 
 
-5\. View detailed route information and weather conditions along the path
+5. View detailed route information and weather conditions along the path
 
 
 
-\## Project Structure
+## Project Structure
 
 
 
@@ -184,29 +184,29 @@ skyroute/
 
 └── modules/                # Core functionality modules
 
-&nbsp;   ├── \_\_init\_\_.py
+&nbsp;   ├── __init__.py
 
-&nbsp;   ├── flight\_optimizer.py # Route optimization logic
+&nbsp;   ├── flight_optimizer.py # Route optimization logic
 
-&nbsp;   ├── weather\_service.py  # Weather data integration
+&nbsp;   ├── weather_service.py  # Weather data integration
 
-&nbsp;   └── map\_service.py      # Google Maps integration
+&nbsp;   └── map_service.py      # Google Maps integration
 
 ```
 
 
 
-\## API Keys Setup
+## API Keys Setup
 
 
 
-\### Google Maps API Key
+### Google Maps API Key
 
-1\. Visit \[Google Cloud Console](https://console.cloud.google.com/)
+1. Visit [Google Cloud Console](https://console.cloud.google.com/)
 
-2\. Create a new project
+2. Create a new project
 
-3\. Enable the following APIs:
+3. Enable the following APIs:
 
 &nbsp;  - Maps JavaScript API
 
@@ -214,53 +214,53 @@ skyroute/
 
 &nbsp;  - Geocoding API
 
-4\. Create credentials to get your API key
+4. Create credentials to get your API key
 
-5\. Add restrictions as needed for security
-
-
-
-\### OpenWeatherMap API Key
-
-1\. Create an account at \[OpenWeatherMap](https://openweathermap.org/)
-
-2\. Navigate to the API keys section
-
-3\. Copy your API key
+5. Add restrictions as needed for security
 
 
 
-\## Screenshots
+### OpenWeatherMap API Key
+
+1. Create an account at [OpenWeatherMap](https://openweathermap.org/)
+
+2. Navigate to the API keys section
+
+3. Copy your API key
 
 
 
-!\[Home Page](https://via.placeholder.com/800x400?text=SkyRoute+Home+Page)
-
-!\[Route Optimization](https://via.placeholder.com/800x400?text=Route+Optimization+Results)
-
-!\[Weather Integration](https://via.placeholder.com/800x400?text=Weather+Data+Integration)
+## Screenshots
 
 
 
-\## Future Improvements
+![Home Page](https://via.placeholder.com/800x400?text=SkyRoute+Home+Page)
+
+![Route Optimization](https://via.placeholder.com/800x400?text=Route+Optimization+Results)
+
+![Weather Integration](https://via.placeholder.com/800x400?text=Weather+Data+Integration)
 
 
 
-\- Add user authentication system
-
-\- Implement route saving functionality
-
-\- Integrate with flight planning software
-
-\- Add more advanced weather prediction models
-
-\- Create a mobile application version
-
-\- Add support for aircraft-specific performance data
+## Future Improvements
 
 
 
-\## License
+- Add user authentication system
+
+- Implement route saving functionality
+
+- Integrate with flight planning software
+
+- Add more advanced weather prediction models
+
+- Create a mobile application version
+
+- Add support for aircraft-specific performance data
+
+
+
+## License
 
 
 
@@ -268,15 +268,15 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 
 
-\## Contact
+## Contact
 
 
 
-Nikhil Raj Singh - \[GitHub](https://github.com/Nikhil-Raj-Singh)
+Nikhil Raj Singh - [GitHub](https://github.com/Nikhil-Raj-Singh)
 
 
 
-Project Link: \[https://github.com/Nikhil-Raj-Singh/skyroute](https://github.com/Nikhil-Raj-Singh/skyroute)
+Project Link: [https://github.com/Nikhil-Raj-Singh/skyroute](https://github.com/Nikhil-Raj-Singh/skyroute)
 
 
 
