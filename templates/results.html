@@ -1,0 +1,369 @@
+{% extends "layout.html" %}
+
+{% block title %}SkyRoute: Route Results{% endblock %}
+
+{% block head %}
+    <style>
+        #results-map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .weather-info {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .route-comparison {
+            overflow-x: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h2 class="mb-4">Flight Route Results</h2>
+    
+    <div class="alert alert-info">
+        <strong>Note:</strong> This page shows saved route optimizations. Please use the home page to run a new optimization.
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Route Comparison</h5>
+                </div>
+                <div class="card-body route-comparison">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Route</th>
+                                <th>Distance (km)</th>
+                                <th>Duration</th>
+                                <th>Weather Score</th>
+                                <th>Fuel Score</th>
+                                <th>Total Score</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="routes-table">
+                            <tr>
+                                <td colspan="7" class="text-center">No saved routes. Go to the home page to optimize a route.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Route Map</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="results-map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Weather Conditions</h5>
+                </div>
+                <div class="card-body" id="weather-info">
+                    <p class="text-center">No route selected</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Route Details</h5>
+                </div>
+                <div class="card-body" id="route-details">
+                    <p class="text-center">No route selected</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places"></script>
+    <script>
+        // In a full implementation, this page would load saved routes from a database
+        // For this demo, we'll simulate saved routes
+        
+        const sampleRoutes = [
+            {
+                id: 1,
+                origin: "New York, NY",
+                destination: "Los Angeles, CA",
+                distance: 3944000,
+                duration: 19584,
+                weather_score: 0.15,
+                fuel_score: 3.94,
+                score: 0.42,
+                path: [
+                    [40.7128, -74.0060], 
+                    [39.1031, -84.5120], 
+                    [38.6272, -90.1978], 
+                    [35.0844, -106.6504], 
+                    [34.0522, -118.2437]
+                ],
+                weather_data: [
+                    {
+                        coordinates: [40.7128, -74.0060],
+                        conditions: "Clear",
+                        temperature: 22,
+                        wind_speed: 3.5,
+                        description: "Clear sky"
+                    },
+                    {
+                        coordinates: [38.6272, -90.1978],
+                        conditions: "Clouds",
+                        temperature: 25,
+                        wind_speed: 4.2,
+                        description: "Scattered clouds"
+                    },
+                    {
+                        coordinates: [34.0522, -118.2437],
+                        conditions: "Clear",
+                        temperature: 28,
+                        wind_speed: 2.1,
+                        description: "Clear sky"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                origin: "Chicago, IL",
+                destination: "Miami, FL",
+                distance: 2122000,
+                duration: 10584,
+                weather_score: 0.32,
+                fuel_score: 2.12,
+                score: 0.61,
+                path: [
+                    [41.8781, -87.6298], 
+                    [39.7684, -86.1581], 
+                    [35.2271, -80.8431], 
+                    [25.7617, -80.1918]
+                ],
+                weather_data: [
+                    {
+                        coordinates: [41.8781, -87.6298],
+                        conditions: "Clouds",
+                        temperature: 18,
+                        wind_speed: 5.1,
+                        description: "Broken clouds"
+                    },
+                    {
+                        coordinates: [35.2271, -80.8431],
+                        conditions: "Rain",
+                        temperature: 22,
+                        wind_speed: 3.8,
+                        description: "Light rain"
+                    },
+                    {
+                        coordinates: [25.7617, -80.1918],
+                        conditions: "Clear",
+                        temperature: 30,
+                        wind_speed: 4.2,
+                        description: "Clear sky"
+                    }
+                ]
+            }
+        ];
+        
+        let map;
+        let markers = [];
+        let polylines = [];
+        
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('results-map'), {
+                center: {lat: 37.0902, lng: -95.7129},
+                zoom: 4,
+                mapTypeId: 'terrain'
+            });
+            
+            // Populate the table with sample routes
+            populateRoutesTable();
+        }
+        
+        function populateRoutesTable() {
+            if (sampleRoutes.length === 0) return;
+            
+            let tableHtml = '';
+            
+            sampleRoutes.forEach(route => {
+                tableHtml += `
+                    <tr>
+                        <td>${route.origin} to ${route.destination}</td>
+                        <td>${(route.distance / 1000).toFixed(2)}</td>
+                        <td>${formatDuration(route.duration)}</td>
+                        <td>${route.weather_score.toFixed(2)}</td>
+                        <td>${route.fuel_score.toFixed(2)}</td>
+                        <td>${route.score.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary view-route-btn" data-id="${route.id}">View</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('routes-table').innerHTML = tableHtml;
+            
+            // Add event listeners
+            document.querySelectorAll('.view-route-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const routeId = parseInt(this.getAttribute('data-id'));
+                    const route = sampleRoutes.find(r => r.id === routeId);
+                    viewRoute(route);
+                });
+            });
+            
+            // Show the first route by default
+            viewRoute(sampleRoutes[0]);
+        }
+        
+        function viewRoute(route) {
+            // Clear previous routes
+            clearMap();
+            
+            // Display route details
+            document.getElementById('route-details').innerHTML = `
+                <h5>${route.origin} to ${route.destination}</h5>
+                <div class="mt-3">
+                    <p><strong>Distance:</strong> ${(route.distance / 1000).toFixed(2)} km</p>
+                    <p><strong>Estimated Duration:</strong> ${formatDuration(route.duration)}</p>
+                    <p><strong>Weather Score:</strong> ${route.weather_score.toFixed(2)}</p>
+                    <p><strong>Fuel Score:</strong> ${route.fuel_score.toFixed(2)}</p>
+                    <p><strong>Total Score:</strong> ${route.score.toFixed(2)} (lower is better)</p>
+                </div>
+            `;
+            
+            // Display weather info
+            let weatherHtml = '<div class="row">';
+            
+            route.weather_data.forEach(point => {
+                weatherHtml += `
+                    <div class="col-md-6 mb-3">
+                        <div class="weather-info">
+                            <h6>${point.conditions}</h6>
+                            <p><i class="fas fa-thermometer-half"></i> ${point.temperature}°C</p>
+                            <p><i class="fas fa-wind"></i> ${point.wind_speed} m/s</p>
+                            <p>${point.description}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            weatherHtml += '</div>';
+            document.getElementById('weather-info').innerHTML = weatherHtml;
+            
+            // Draw route on map
+            drawRoute(route);
+        }
+        
+        function drawRoute(route) {
+            if (!route || !route.path || route.path.length === 0) return;
+            
+            // Add markers for origin and destination
+            const origin = route.path[0];
+            const destination = route.path[route.path.length - 1];
+            
+            // Origin marker
+            const originMarker = new google.maps.Marker({
+                position: {lat: origin[0], lng: origin[1]},
+                map: map,
+                title: 'Origin',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            });
+            markers.push(originMarker);
+            
+            // Destination marker
+            const destMarker = new google.maps.Marker({
+                position: {lat: destination[0], lng: destination[1]},
+                map: map,
+                title: 'Destination',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            });
+            markers.push(destMarker);
+            
+            // Draw the route line
+            const path = route.path.map(point => ({lat: point[0], lng: point[1]}));
+            const routeLine = new google.maps.Polyline({
+                path: path,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 3
+            });
+            routeLine.setMap(map);
+            polylines.push(routeLine);
+            
+            // Add weather info markers if available
+            if (route.weather_data && route.weather_data.length > 0) {
+                route.weather_data.forEach(point => {
+                    const weatherMarker = new google.maps.Marker({
+                        position: {lat: point.coordinates[0], lng: point.coordinates[1]},
+                        map: map,
+                        title: `${point.conditions}: ${point.temperature}°C, Wind: ${point.wind_speed} m/s`,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                    });
+                    markers.push(weatherMarker);
+                    
+                    // Add info window for weather details
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div>
+                                <h5>${point.conditions}</h5>
+                                <p>Temperature: ${point.temperature}°C</p>
+                                <p>Wind Speed: ${point.wind_speed} m/s</p>
+                                <p>Description: ${point.description}</p>
+                            </div>
+                        `
+                    });
+                    
+                    weatherMarker.addListener('click', function() {
+                        infoWindow.open(map, weatherMarker);
+                    });
+                });
+            }
+            
+            // Fit the map to show the entire route
+            const bounds = new google.maps.LatLngBounds();
+            path.forEach(point => bounds.extend(point));
+            map.fitBounds(bounds);
+        }
+        
+        function clearMap() {
+            // Clear markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            // Clear polylines
+            polylines.forEach(line => line.setMap(null));
+            polylines = [];
+        }
+        
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m`;
+            } else {
+                return `${minutes}m`;
+            }
+        }
+        
+        // Initialize the map when the page loads
+        window.onload = initMap;
+    </script>
+{% endblock %}

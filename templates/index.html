@@ -1,0 +1,262 @@
+{% extends "layout.html" %}
+
+{% block title %}SkyRoute: Find Optimal Flight Routes{% endblock %}
+
+{% block head %}
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .route-info {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="display-4">SkyRoute</h1>
+        <p class="lead">Intelligent Flight Route Optimizer</p>
+        <hr class="my-4">
+        <p>Compute the shortest, most cost-effective flight paths by considering time, fuel usage, and real-time weather conditions.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Route Optimizer</h5>
+                </div>
+                <div class="card-body">
+                    <form id="route-form">
+                        <div class="form-group">
+                            <label for="origin">Origin:</label>
+                            <input type="text" class="form-control" id="origin" placeholder="Airport code or coordinates">
+                        </div>
+                        <div class="form-group">
+                            <label for="destination">Destination:</label>
+                            <input type="text" class="form-control" id="destination" placeholder="Airport code or coordinates">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Optimize Route</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4 route-info" id="route-info-container" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Route Information</h5>
+                </div>
+                <div class="card-body" id="route-info">
+                    <!-- Route information will be displayed here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Flight Map</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places"></script>
+    <script>
+        // Initialize the map
+        let map;
+        let markers = [];
+        let polylines = [];
+        
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 20, lng: 0},
+                zoom: 2,
+                mapTypeId: 'terrain'
+            });
+            
+            // Add event listeners
+            document.getElementById('route-form').addEventListener('submit', optimizeRoute);
+        }
+        
+        function optimizeRoute(e) {
+            e.preventDefault();
+            
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            
+            if (!origin || !destination) {
+                alert('Please enter both origin and destination');
+                return;
+            }
+            
+            // Show loading indicator
+            document.getElementById('route-info').innerHTML = '<div class="text-center"><p>Optimizing routes...</p></div>';
+            document.getElementById('route-info-container').style.display = 'block';
+            
+            // Clear previous routes
+            clearMap();
+            
+            // Send request to the server
+            fetch('/optimize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    origin: origin,
+                    destination: destination
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('route-info').innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    return;
+                }
+                
+                displayRoutes(data.routes);
+            })
+            .catch(error => {
+                document.getElementById('route-info').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            });
+        }
+        
+        function displayRoutes(routes) {
+            if (!routes || routes.length === 0) {
+                document.getElementById('route-info').innerHTML = '<div class="alert alert-warning">No routes found</div>';
+                return;
+            }
+            
+            // Create info HTML
+            let infoHtml = '<div class="list-group">';
+            
+            routes.forEach((route, index) => {
+                const isOptimal = index === 0;
+                const routeClass = isOptimal ? 'list-group-item-success' : '';
+                const badge = isOptimal ? '<span class="badge badge-success float-right">Optimal</span>' : '';
+                
+                infoHtml += `
+                    <div class="list-group-item ${routeClass}">
+                        ${badge}
+                        <h5 class="mb-1">Route ${index + 1}</h5>
+                        <p>Distance: ${(route.distance / 1000).toFixed(2)} km</p>
+                        <p>Weather Score: ${route.weather_score.toFixed(2)}</p>
+                        <p>Total Score: ${route.score.toFixed(2)} (lower is better)</p>
+                        <button class="btn btn-sm btn-primary show-route-btn" data-index="${index}">Show on Map</button>
+                    </div>
+                `;
+                
+                // Draw the first (optimal) route by default
+                if (index === 0) {
+                    drawRoute(route);
+                }
+            });
+            
+            infoHtml += '</div>';
+            document.getElementById('route-info').innerHTML = infoHtml;
+            
+            // Add event listeners to the buttons
+            document.querySelectorAll('.show-route-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const routeIndex = parseInt(this.getAttribute('data-index'));
+                    clearMap();
+                    drawRoute(routes[routeIndex]);
+                });
+            });
+        }
+        
+        function drawRoute(route) {
+            if (!route || !route.path || route.path.length === 0) return;
+            
+            // Add markers for origin and destination
+            const origin = route.path[0];
+            const destination = route.path[route.path.length - 1];
+            
+            // Origin marker
+            const originMarker = new google.maps.Marker({
+                position: {lat: origin[0], lng: origin[1]},
+                map: map,
+                title: 'Origin',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            });
+            markers.push(originMarker);
+            
+            // Destination marker
+            const destMarker = new google.maps.Marker({
+                position: {lat: destination[0], lng: destination[1]},
+                map: map,
+                title: 'Destination',
+                icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            });
+            markers.push(destMarker);
+            
+            // Draw the route line
+            const path = route.path.map(point => ({lat: point[0], lng: point[1]}));
+            const routeLine = new google.maps.Polyline({
+                path: path,
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 3
+            });
+            routeLine.setMap(map);
+            polylines.push(routeLine);
+            
+            // Add weather info markers if available
+            if (route.weather_data && route.weather_data.length > 0) {
+                route.weather_data.forEach(point => {
+                    const weatherMarker = new google.maps.Marker({
+                        position: {lat: point.coordinates[0], lng: point.coordinates[1]},
+                        map: map,
+                        title: `${point.conditions}: ${point.temperature}°C, Wind: ${point.wind_speed} m/s`,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                    });
+                    markers.push(weatherMarker);
+                    
+                    // Add info window for weather details
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `
+                            <div>
+                                <h5>${point.conditions}</h5>
+                                <p>Temperature: ${point.temperature}°C</p>
+                                <p>Wind Speed: ${point.wind_speed} m/s</p>
+                                <p>Description: ${point.description}</p>
+                            </div>
+                        `
+                    });
+                    
+                    weatherMarker.addListener('click', function() {
+                        infoWindow.open(map, weatherMarker);
+                    });
+                });
+            }
+            
+            // Fit the map to show the entire route
+            const bounds = new google.maps.LatLngBounds();
+            path.forEach(point => bounds.extend(point));
+            map.fitBounds(bounds);
+        }
+        
+        function clearMap() {
+            // Clear markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            // Clear polylines
+            polylines.forEach(line => line.setMap(null));
+            polylines = [];
+        }
+        
+        // Initialize the map when the page loads
+        window.onload = initMap;
+    </script>
+{% endblock %}
